@@ -14,14 +14,33 @@ class MicroWebServer:
         self.logger = Logger()
         self.caller = "MicroWebServer"
 
-    async def get_headers(self, reader):
+    async def get_headers(self, reader, max_headers=100, max_line_length=4096):
         headers = {}
+        num_headers = 0
+
         while True:
+            if num_headers >= max_headers:
+                self.logger.error(self.caller, "Maximum number of headers reached")
+                raise ValueError("Maximum number of headers reached")
+
             line = await reader.readline()
+
+            if len(line) > max_line_length:
+                self.logger.error(self.caller, "Header line too long")
+                raise ValueError("Header line too long")
+
             if line == b'\r\n':
                 break
-            key, value = line.decode().strip().split(':', 1)
+
+            try:
+                key, value = line.decode().strip().split(':', 1)
+            except ValueError:
+                self.logger.error(self.caller, "Ignoring invalid header, not containing colon: {}".format(line))
+                continue
+
             headers[key.strip()] = value.strip()
+            num_headers += 1
+
         return headers
 
     async def start_server(self):
