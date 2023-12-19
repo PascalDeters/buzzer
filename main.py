@@ -145,7 +145,7 @@ hwWrapper = BuzzerHardwareWrapper(annode, r, g, b, button, True)
 game = BuzzerGame(hwWrapper, clientHandler)
 configManager = ConfigManager()
 config = configManager.read_config()
-configManager.remove_config()
+#configManager.remove_config()
 
 if config is not None:
     if config.is_server:
