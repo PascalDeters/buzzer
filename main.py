@@ -8,6 +8,7 @@ from config import Config
 from configbasedbootstrap import ConfigBasedBootstrap
 from configmanager import ConfigManager
 from logger import Logger, Logging
+from microwebserver import WebHelper
 from nonconfigbootstrap import NonConfigBootstrap
 from wifimanager import WiFiManager
 
@@ -118,22 +119,20 @@ def save_wifi_settings(post_data):
     response += "<html><body><h2>WiFi configuration saved. Pico will now try to connect to the new " \
                 "WLAN. Please restart the pico</h2></body></html>"
 
-    print(post_data)
-    if "is_server" in post_data:
-        name = post_data.split('&')[0].split('=')[1]
-        is_server = (post_data.split('&')[1].split('=')[1]) == "on"
-        servername = post_data.split('&')[2].split('=')[1]
-        ssid = post_data.split('&')[3].split('=')[1]
-        password = post_data.split('&')[4].split('=')[1]
-        configManager.write_config(
-            Config(is_server=is_server, name=name, servername=servername, ssid=ssid, password=password))
-    else:
-        name = post_data.split('&')[0].split('=')[1]
-        servername = post_data.split('&')[1].split('=')[1]
-        ssid = post_data.split('&')[2].split('=')[1]
-        password = post_data.split('&')[3].split('=')[1]
-        configManager.write_config(
-            Config(is_server=False, name=name, servername=servername, ssid=ssid, password=password))
+    parsed_data = WebHelper.extract_post_data(post_data)
+
+    name = parsed_data['name']
+    is_server = "is_server" in parsed_data and parsed_data['is_server'] == 'on'
+    servername = parsed_data['servername']
+    ssid = parsed_data['ssid']
+    password = parsed_data['password']
+
+    print(ssid)
+    print(password)
+    print(is_server)
+
+    configManager.write_config(
+        Config(is_server=is_server, name=name, servername=servername, ssid=ssid, password=password))
 
     return response
 
@@ -150,13 +149,14 @@ hwWrapper = BuzzerHardwareWrapper(annode, r, g, b, button, True)
 game = BuzzerGame(hwWrapper, clientHandler)
 configManager = ConfigManager()
 config = configManager.read_config()
-#configManager.remove_config()
+configManager.remove_config()
 
 if config is not None:
     if config.is_server:
         event_loop = uasyncio.get_event_loop()
         bootstrap = ConfigBasedBootstrap(config, 80, hwWrapper, configManager.remove_config)
-        uasyncio.run(bootstrap.boot(show_game_page, delete_config_page, start_new_game, stop_new_game, handle_client_page))
+        uasyncio.run(
+            bootstrap.boot(show_game_page, delete_config_page, start_new_game, stop_new_game, handle_client_page))
         buzzerServerClient = BuzzerServerClient(hwWrapper, config, clientHandler)
         uasyncio.run(buzzerServerClient.start(10, 1))
         event_loop.run_forever()

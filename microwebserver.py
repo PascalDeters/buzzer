@@ -5,6 +5,46 @@ import uasyncio
 from logger import Logger
 
 
+class WebHelper:
+    @staticmethod
+    def extract_post_data(post_data):
+        parsed = {}
+        for pair in post_data.split('&'):
+            if '=' in pair:
+                key, value = pair.split('=', 1)
+                key = WebHelper.url_decode(key).strip()
+                value = WebHelper.url_decode(value).strip()
+                parsed[key] = value
+        return parsed
+
+    @staticmethod
+    def url_decode(s):
+        def hex_to_char(hex_str):
+            return chr(int(hex_str, 16))
+
+        i = 0
+        result = ''
+
+        while i < len(s):
+            if s[i] == '%' and i + 2 < len(s):
+                hex_str = s[i + 1:i + 3]
+                try:
+                    result += hex_to_char(hex_str)
+                    i += 3
+                except ValueError:
+                    # In case of invalid hex value, skip the '%' and proceed
+                    result += s[i]
+                    i += 1
+            elif s[i] == '+':
+                result += ' '
+                i += 1
+            else:
+                result += s[i]
+                i += 1
+
+        return result
+
+
 class MicroWebServer:
     def __init__(self, address, port):
         self.address = address
@@ -68,7 +108,7 @@ class MicroWebServer:
                 writer.write(self.post_handlers[path](post_data.decode('utf-8')))
                 await writer.drain()
             else:
-                self.logger.debug(self.caller, "Client requests a unknown path")
+                self.logger.debug(self.caller, "Client requests a unknown path: {}".format(path))
                 writer.write("HTTP/1.0 404 Not Found\r\n\r\nNot Found")
                 await writer.drain()
         except Exception as e:
