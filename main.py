@@ -127,10 +127,6 @@ def save_wifi_settings(post_data):
     ssid = parsed_data['ssid']
     password = parsed_data['password']
 
-    print(ssid)
-    print(password)
-    print(is_server)
-
     configManager.write_config(
         Config(is_server=is_server, name=name, servername=servername, ssid=ssid, password=password))
 
