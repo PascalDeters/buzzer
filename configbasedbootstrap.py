@@ -11,7 +11,7 @@ class ConfigBasedBootstrap:
         self.logger = Logger()
         self.caller = "ConfigBasedBootstrap"
 
-    async def boot(self, show_game_page, delete_config_page, start_new_game_page, stop_new_game_page, handle_client_page):
+    async def boot(self, show_game_page, delete_config_page, start_new_game_page, stop_new_game_page, handle_client_page, handle_css_file):
         is_connected, ip_address = WiFiManager().connect_to_wifi(self.config.ssid, self.config.password,
                                                                  self.config.name)
 
@@ -20,6 +20,7 @@ class ConfigBasedBootstrap:
             webserver = MicroWebServer(self.config.name, 80)
 
             webserver.add_get_handler("/", show_game_page)
+            webserver.add_get_handler("/min.css", handle_css_file)
             webserver.add_get_handler("/reset", delete_config_page)
             webserver.add_post_handler("/client", handle_client_page)
             webserver.add_post_handler("/game_start", start_new_game_page)

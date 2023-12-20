@@ -17,12 +17,13 @@ class NonConfigBootstrap:
         self.logger = Logger()
         self.caller = "NonConfigBootstrap"
 
-    async def boot(self, landing_page, save_page):
+    async def boot(self, landing_page, save_page, handle_css_file):
         ip_address = WiFiManager().start_access_point(self.ssid, self.password)
         self.saveHandler = save_page
 
         self.webserver = MicroWebServer(ip_address, self.port)
         self.webserver.add_get_handler("/", landing_page)
+        self.webserver.add_get_handler("/min.css", handle_css_file)
         self.webserver.add_post_handler("/save", self.__save_and_close_server)
         await self.webserver.start_server()
 
