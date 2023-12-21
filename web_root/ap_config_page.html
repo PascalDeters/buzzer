@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configuration</title>
+    <link rel="stylesheet" type="text/css" href="/min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h2>Configuration</h2>
+    <form action="/save" method="post" class="pure-form pure-form-aligned">
+        <fieldset>
+            <legend>Please enter some general settings</legend>
+            <div class="pure-control-group">
+                <label for="name">Name of the buzzer:</label>
+                <input type="text" id="name" name="name" value="buzzerserver" required />
+                <span class="pure-form-message-inline">This is a required field.</span>
+            </div>
+            <div class="pure-control-group">
+            <label for="stacked-is_server" class="pure-checkbox">
+                <input type="checkbox" name="is_server" id="is_server" checked/> Is Server:
+            </label>
+            </div>
+            <div class="pure-control-group">
+                <label for="servername">Name of the server:</label>
+                <input type="text" id="servername" name="servername" value="buzzerserver" required>
+                <span class="pure-form-message-inline">This is a required field.</span>
+            </div>
+            <legend>Please prepare your WIFI settings</legend>
+            <div class="pure-control-group">
+                <label for="ssid">SSID:</label>
+                <input type="text" id="ssid" name="ssid" value="ssid" required>
+                <span class="pure-form-message-inline">This is a required field.</span>
+            </div>
+            <div class="pure-control-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" value="password" name="password" required>
+                <span class="pure-form-message-inline">This is a required field.</span>
+            </div>
+            <div class="pure-u-1">
+                <input class="pure-button pure-button-primary pure-input-1" type="submit" value="Save">
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>

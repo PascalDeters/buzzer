@@ -6,6 +6,20 @@ from logger import Logger
 
 
 class WebHelper:
+
+    @staticmethod
+    def get_content_type_css():
+        return "HTTP/1.1 200 OK\r\nContent-Type: text/css\r\n\r\n"
+
+    @staticmethod
+    def get_content_type_html():
+        return "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+
+    @staticmethod
+    def get_web_content(filename):
+        with open("web_root/{}".format(filename), 'r') as file:
+            return file.read()
+
     @staticmethod
     def extract_post_data(post_data):
         parsed = {}
