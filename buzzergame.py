@@ -1,3 +1,5 @@
+import time
+
 from logger import Logger
 
 
@@ -9,22 +11,72 @@ class BuzzerHardwareWrapper:
         self.b = b
         self.button = button
         self.is_rgb_led = is_rgb_led
+        self.annode.off()
 
     def off(self):
         if self.is_rgb_led:
             self.annode.off()
-            self.r.on()
-            self.b.on()
-            self.g.on()
+            self.r.off()
+            self.b.off()
+            self.g.off()
         else:
             self.r.off()
 
     def on(self):
         if self.is_rgb_led:
-            self.annode.on()
+            self.annode.off()
+            self.r.off()
+            self.b.on()
+            self.g.on()
+        else:
             self.r.on()
+
+    def blink_r_g_b(self):
+        if self.is_rgb_led:
+            self.annode.off()
+            self.r.on()
+            time.sleep(1)
+            self.r.off()
+            self.b.on()
+            time.sleep(1)
             self.b.off()
+            self.g.on()
+            time.sleep(1)
             self.g.off()
+        else:
+            self.r.on()
+
+    def blink_green(self):
+        if self.is_rgb_led:
+            self.annode.off()
+            self.g.on()
+            time.sleep(1)
+            self.g.off()
+
+            self.g.on()
+            time.sleep(1)
+            self.g.off()
+
+            self.g.on()
+            time.sleep(1)
+            self.g.off()
+        else:
+            self.g.on()
+
+    def blink_red(self):
+        if self.is_rgb_led:
+            self.annode.off()
+            self.r.on()
+            time.sleep(1)
+            self.r.off()
+
+            self.r.on()
+            time.sleep(1)
+            self.r.off()
+
+            self.r.on()
+            time.sleep(1)
+            self.r.off()
         else:
             self.r.on()
 

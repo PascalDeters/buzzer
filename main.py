@@ -1,4 +1,5 @@
 import machine
+import time
 import uasyncio
 
 from buzzerclient import BuzzerServerClient, BuzzerHttpClient
@@ -34,13 +35,18 @@ configManager = ConfigManager()
 config = configManager.read_config()
 #configManager.remove_config()
 
+
+#show the user that the pico is starting
+hwWrapper.off()
+hwWrapper.blink_r_g_b()
+
 # Main
 if config is not None:
     if config.is_server:
         event_loop = uasyncio.get_event_loop()
         bootstrap = ConfigBasedBootstrap(WEBSERVER_PORT, hwWrapper, clientHandler, game, configManager)
         uasyncio.run(bootstrap.boot())
-        buzzerServerClient = BuzzerServerClient(hwWrapper, config, clientHandler)
+        buzzerServerClient = BuzzerServerClient(hwWrapper, config, clientHandler, configManager)
         uasyncio.run(buzzerServerClient.start(BUZZER_CLIENT_DELAY_TO_START_IN_SEC, BUZZER_CLIENT_INTERVAL_IN_SEC))
         event_loop.run_forever()
     else:
@@ -51,7 +57,7 @@ if config is not None:
             logger.error("Main", "Not connected to wifi")
         event_loop = uasyncio.get_event_loop()
         buzzerServerClient = BuzzerHttpClient(BUZZER_CLIENT_DELAY_TO_START_IN_SEC, BUZZER_CLIENT_INTERVAL_IN_SEC,
-                                              hwWrapper, config)
+                                              hwWrapper, config, configManager)
         uasyncio.run(buzzerServerClient.start())
         event_loop.run_forever()
 else:

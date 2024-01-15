@@ -5,12 +5,13 @@ import sys
 import uasyncio
 import utime as utime
 import urequests as requests
+import machine
 
 from logger import Logger
 
 
 class BuzzerHttpClient:
-    def __init__(self, delay_to_start, interval, hwWrapper, config):
+    def __init__(self, delay_to_start, interval, hwWrapper, config, configManager):
         self.delay_to_start = delay_to_start
         self.hwWrapper = hwWrapper
         self.interval = interval
@@ -19,6 +20,8 @@ class BuzzerHttpClient:
         self.button_pressed = False
         self.logger = Logger()
         self.caller = "BuzzerHttpClient"
+        self.initial_call = True
+        self.configManager = configManager
 
     async def start(self):
         self.logger.debug(self.caller, "Start")
@@ -27,13 +30,23 @@ class BuzzerHttpClient:
         return await uasyncio.create_task(self.__loop__())
 
     def __check_button__(self):
+        reset_pico_count = 0
         while True:
             if self.hwWrapper.button.value() == 0:
+                reset_pico_count = reset_pico_count + 1
+                if reset_pico_count >= 80:
+                    self.logger.warning(self.caller, "Remove config file")
+                    self.configManager.remove_config()
+                    self.hwWrapper.blink_red()
+                    machine.reset()
+
                 if self.command == "light_on":
                     self.button_pressed = True
                     self.hwWrapper.off()
                     self.logger.info(self.caller, "The right button was pressed")
                 utime.sleep(0.10)
+            else:
+                reset_pico_count = 0
 
     async def __loop__(self):
         while True:
@@ -46,6 +59,9 @@ class BuzzerHttpClient:
             response = None
             try:
                 response = requests.post("http://{}/client".format(self.config.servername), data=url_encoded_data)
+                if self.initial_call:
+                    self.hwWrapper.blink_green()
+
                 self.logger.debug(self.caller, "Server response: {}".format(response.text))
 
                 self.command = response.text
@@ -62,13 +78,14 @@ class BuzzerHttpClient:
             finally:
                 if response is not None:
                     response.close()
+                    self.initial_call = False
 
             await asyncio.sleep(self.interval)
 
 
 class BuzzerServerClient:
 
-    def __init__(self, hwWrapper, config, clientHandler):
+    def __init__(self, hwWrapper, config, clientHandler, configManager):
         self.config = config
         self.hwWrapper = hwWrapper
         self.light_on = False
@@ -76,6 +93,7 @@ class BuzzerServerClient:
         self.clientHandler = clientHandler
         self.logger = Logger()
         self.caller = "BuzzerServerClient"
+        self.configManager = configManager
 
     async def start(self, delay_to_start=10, interval=1):
         self.logger.debug(self.caller, "Start")
@@ -84,8 +102,16 @@ class BuzzerServerClient:
         return await uasyncio.create_task(self.__loop__(interval))
 
     def __check_button__(self):
+        reset_pico_count = 0
         while True:
             if self.hwWrapper.button.value() == 0:
+                reset_pico_count = reset_pico_count + 1
+                if reset_pico_count >= 80:
+                    self.logger.warning(self.caller, "Remove config file")
+                    self.configManager.remove_config()
+                    self.hwWrapper.blink_red()
+                    machine.reset()
+
                 if self.clientHandler.any_client_with_a_command() and self.config.name in self.clientHandler.clients:
                     clientConfig = self.clientHandler.clients[self.config.name]
                     if clientConfig.command == "light_on":
@@ -93,6 +119,8 @@ class BuzzerServerClient:
                         self.hwWrapper.off()
                         self.logger.info(self.caller, "The right button was pressed")
                 utime.sleep(0.10)
+            else:
+                reset_pico_count = 0
 
     async def __loop__(self, interval):
         while True:
