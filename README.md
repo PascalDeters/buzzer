@@ -1,9 +1,9 @@
 # Buzzer - The coordination game 
 Buzzer is a coordination game based on Micropython pico w, the aim of which is to provide a series of self-printed buzzers to train personal reaction skills in a fun way.
 
-![image circuit-diagram](./docu/pico 1.png)
-![image circuit-diagram](./docu/pico 2.png)
-![image circuit-diagram](./docu/pico 3.png)
+![image circuit-diagram](./docu/pico1.png)
+![image circuit-diagram](./docu/pico2.png)
+![image circuit-diagram](./docu/pico3.png)
 
 ## Installation
 * Install Micropython (https://docs.micropython.org/en/latest/esp32/tutorial/intro.html#esp32-intro)
