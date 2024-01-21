@@ -14,12 +14,12 @@ class ConfigBasedBootstrap:
         self.config = self.configManager.read_config()
 
     async def boot(self):
-        is_connected, ip_address = WiFiManager().connect_to_wifi(self.config.ssid, self.config.password,
-                                                                 self.config.name)
+        #is_connected, ip_address = WiFiManager().connect_to_wifi(self.config.ssid, self.config.password, self.config.name)
+        ip_address = WiFiManager().start_access_point(self.config.ssid, self.config.password, self.config.name)
 
-        if is_connected:
+        if ip_address:
             self.logger.info(self.caller, "Connected to wifi with ip address: {}".format(ip_address))
-            webserver = MicroWebServer(self.config.name, 80)
+            webserver = MicroWebServer(ip_address, 80)
 
             webserver.add_get_handler("/", self.__show_overview__)
             webserver.add_get_handler("/min.css", self.__show_css__)

@@ -11,7 +11,12 @@ class WiFiManager:
         self.logger = Logger()
         self.caller = "WifiManager"
 
-    def start_access_point(self, ssid, password):
+    def start_access_point(self, ssid, password, hostname: ""):
+        self.logger.debug(self.caller, "Host and open WLAN. SSID: {}, with Password: {}".format(ssid, password))
+        if hostname is not "":
+            self.logger.debug(self.caller, "Setting hostname: {}".format(hostname))
+            self.access_point.config(hostname=hostname)
+
         self.access_point.config(essid=ssid, password=password)
         # Enable access point mode
         self.access_point.active(True)
