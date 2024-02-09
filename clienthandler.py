@@ -18,6 +18,7 @@ class Client:
         self.button_pressed = False
         self.light_on = False
 
+
 class ClientHandler:
 
     def __init__(self, timeout):
@@ -27,14 +28,20 @@ class ClientHandler:
         self.client_timeout_handler = None
         self.logger = Logger()
         self.caller = "ClientHandler"
+        self.client_index_buffer = []
+        self.max_client_selection = 2  # How often a same client can be selected after its selection
 
     def handle_client(self, client_name, button_state, light_state):
-        self.logger.debug(self.caller, "Handle client {} with button state {} and light state {}".format(client_name, button_state, light_state))
+        self.logger.debug(self.caller,
+                          "Handle client {} with button state {} and light state {}".format(client_name, button_state,
+                                                                                            light_state))
 
         self.__remove_clients_that_reached_timeout()
 
         if client_name not in self.clients:
-            self.logger.debug(self.caller, "New client {} with button state {} and light state {}".format(client_name, button_state, light_state))
+            self.logger.debug(self.caller,
+                              "New client {} with button state {} and light state {}".format(client_name, button_state,
+                                                                                             light_state))
             self.clients[client_name] = Client(client_name, button_state, light_state)
 
         self.__client_said_hello__(client_name, button_state, light_state)
@@ -60,8 +67,32 @@ class ClientHandler:
             return None
 
         total_clients = len(self.clients)
-        random_index = random.randint(0, total_clients - 1)
-        return list(self.clients.values())[random_index]
+        if total_clients == 1:
+            return list(self.clients.values())[0]
+
+        # check whether enough clients have been selected to ensure that the same client has not been selected twice after each round
+        if self.max_client_selection > len(self.client_index_buffer):
+            random_index = random.randint(0, total_clients - 1)
+            self.client_index_buffer.append(random_index)
+            return list(self.clients.values())[random_index]
+
+        # enough clients have been selected to validate the rule
+        while True:
+            random_index = random.randint(0, total_clients - 1)
+            if self.was_client_ever_selected(random_index):
+                self.add_new_client_selection(random_index)
+                self.logger.debug(self.caller, "select client index: {}".format(random_index))
+                return list(self.clients.values())[random_index]
+
+    def add_new_client_selection(self, client_index):
+        self.client_index_buffer[0] = self.client_index_buffer[1]
+        self.client_index_buffer[1] = client_index
+
+    def was_client_ever_selected(self, client_index):
+        for index in self.client_index_buffer:
+            if index != client_index:
+                return True
+        return False
 
     def any_clients(self):
         return len(self.clients) > 0
