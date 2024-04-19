@@ -35,13 +35,13 @@ class BuzzerHardwareWrapper:
         if self.is_rgb_led:
             self.annode.off()
             self.r.on()
-            time.sleep(1)
+            time.sleep(0.25)
             self.r.off()
             self.b.on()
-            time.sleep(1)
+            time.sleep(0.25)
             self.b.off()
             self.g.on()
-            time.sleep(1)
+            time.sleep(0.25)
             self.g.off()
         else:
             self.r.on()
@@ -86,7 +86,7 @@ class BuzzerGame:
         self.logger = Logger()
         self.caller = "BuzzerGame"
         self.hwWrapper = hwWrapper
-        self.is_game_active = False
+        self.is_game_active = True
         self.clientHandler = clientHandler
         self.clientHandler.client_timeout_handler = self.__handle_client_timeout__
         self.clientHandler.client_said_hello_handler = self.__handle_client_hello__

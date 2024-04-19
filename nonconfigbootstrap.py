@@ -18,7 +18,7 @@ class NonConfigBootstrap:
         self.game = buzzerGame
 
     async def boot(self):
-        ip_address = WiFiManager().start_access_point(self.ssid, self.password)
+        ip_address = WiFiManager().start_access_point(self.ssid, self.password, "")
 
         self.webserver = MicroWebServer(ip_address, self.port)
         self.webserver.add_get_handler("/", self.__ap_configuration__)

@@ -16,10 +16,13 @@ BUZZER_CLIENT_TIMEOUT = 20
 WEBSERVER_PORT = 80
 PICO_AP_SSID = "pico_buzzer"
 PICO_AP_PASSWORD = "1234567890"
-BUZZER_CLIENT_DELAY_TO_START_IN_SEC = 5
+BUZZER_CLIENT_DELAY_TO_START_IN_SEC = 0.5
 BUZZER_CLIENT_INTERVAL_IN_SEC = 1
 
 # Hardware
+onboard_led = machine.Pin("LED", machine.Pin.OUT)
+onboard_led.value(1)
+
 rgb_led_anode = machine.Pin(13, machine.Pin.OUT, machine.Pin.PULL_DOWN)
 red_led = machine.Pin(15, machine.Pin.OUT, machine.Pin.PULL_DOWN)
 green_led = machine.Pin(14, machine.Pin.OUT, machine.Pin.PULL_DOWN)
